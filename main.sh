@@ -100,7 +100,7 @@ create_new_project() {
   copy_contents "$runtime_base_structure_dir" "$_0_project_name"
 
   if is_golang; then
-    replace_string_in_files "$_0_project_name" "$(get_go_module_from_path "$runtime_dir")/$base_structure_dir" "$_0_go_module"
+    replace_string_in_directory_files "$_0_project_name" "$(get_go_module_from_path "$runtime_dir")/$base_structure_dir" "$_0_go_module"
   fi
 
   remove_unwanted_contents_from_directory "$_0_project_name"
@@ -704,7 +704,7 @@ replace_string_in_directory_files() {
     return 1
   fi
 
-  find "$1" -type f -exec sed -i "s/$2/$3/g" {} +
+  find "$1" -type f -exec sed -i "s#$2#$3#g" {} +
 
   echo "[replace_string_in_directory_files] '$2'... replaced with '$3' in all files inside '$1'"
 }
