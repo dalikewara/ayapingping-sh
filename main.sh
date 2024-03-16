@@ -466,7 +466,7 @@ get_clean_json_value_for_external() {
     exit 1
   fi
 
-  echo "$1" | tr -d '"' | tr ',' '\n' | tr -s '\n' ',' | sed -e 's/, */,/g' -e 's/, *$/ /'
+  echo "$1" | tr -d '"' |  tr ',' '\n' | tr -s '\n' ',' | tr -d '[:blank:]' | sed -e 's/, */,/g' -e 's/, *$/ /'
 }
 
 get_clean_string_from_space() {
@@ -849,22 +849,24 @@ post_config_typescript() {
 }
 
 install_golang_package() {
-  if [ "$#" -ne 2 ]; then
-    echo "[install_golang_package] syntax error... usage: $0 <base_dir> <package>"
+  if [ "$#" -lt 1 ]; then
+    echo "[install_golang_package] syntax error... usage: $0 <base_dir> <package...>"
     exit 1
   fi
 
   if is_golang; then
     cd "$1" || return 1
 
-    go get $2
+    shift
+
+    go get "$(get_clean_string_from_space "$@")"
 
     cd "$current_dir" || return 1
   fi
 }
 
 install_python_package() {
-  if [ "$#" -ne 2 ]; then
+  if [ "$#" -lt 1 ]; then
     echo "[install_python_package] syntax error... usage: $0 <base_dir> <package>"
     exit 1
   fi
@@ -872,10 +874,12 @@ install_python_package() {
   if is_python; then
     cd "$1" || return 1
 
+    shift
+
     if ! is_dir "venv"; then
-      pip install $2
+      pip install "$(get_clean_string_from_space "$@")"
     else
-      venv/bin/pip install $2 || pip install $2
+      venv/bin/pip install "$(get_clean_string_from_space "$@")" || pip install "$(get_clean_string_from_space "$@")"
     fi
 
     cd "$current_dir" || return 1
@@ -883,7 +887,7 @@ install_python_package() {
 }
 
 install_typescript_package() {
-  if [ "$#" -ne 2 ]; then
+  if [ "$#" -lt 1 ]; then
     echo "[install_typescript_package] syntax error... usage: $0 <base_dir> <package>"
     exit 1
   fi
@@ -891,7 +895,9 @@ install_typescript_package() {
   if is_typescript; then
     cd "$1" || return 1
 
-    npm install $2
+    shift
+
+    npm install "$(get_clean_string_from_space "$@")"
 
     cd "$current_dir" || return 1
   fi
@@ -919,9 +925,9 @@ install_dependency_external() {
       shift
       continue
     fi
-    install_golang_package "$_8_base_dir" "$1"
-    install_python_package "$_8_base_dir" "$1"
-    install_typescript_package "$_8_base_dir" "$1"
+    install_golang_package "$_8_base_dir" $1
+    install_python_package "$_8_base_dir" $1
+    install_typescript_package "$_8_base_dir" $1
     shift
   done
 
