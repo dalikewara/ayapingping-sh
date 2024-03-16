@@ -38,6 +38,9 @@ export_common_command="exportCommon"
 import_command_source_prefix="from"
 export_command_source_prefix="to"
 import_or_export_source_example="/path/to/local/project | https://example.com/user/project.git | git@example.com:user/project.git"
+feature_dir="features"
+domain_dir="domain"
+common_dir="common"
 dependency_feature_key="features"
 dependency_domain_key="domains"
 dependency_common_key="commons"
@@ -50,7 +53,7 @@ trap_is_ok=false
 trap_project_name=""
 trap_path=""
 
-# last function variable prefix: _7
+# last function variable prefix: _8
 
 bismillah_aman() {
   echo ""
@@ -140,8 +143,10 @@ import_or_export_something() {
 
   if is_import_or_export_feature; then
     copy_dependency_feature "$value" "$_7_source_dir" "$_7_dest_dir"
-  else
-    copy_dependency_file "$value" "$_7_source_dir" "$_7_dest_dir"
+  elif is_import_or_export_domain; then
+    copy_dependency_domain "$value" "$_7_source_dir" "$_7_dest_dir"
+  elif is_import_or_export_common; then
+    copy_dependency_common "$value" "$_7_source_dir" "$_7_dest_dir"
   fi
 
   post_config "$_7_dest_dir" "$_7_dest_go_module" "true"
@@ -224,6 +229,14 @@ is_import_or_export() {
 
 is_import_or_export_feature() {
   is_import_feature || is_export_feature
+}
+
+is_import_or_export_domain() {
+  is_import_domain || is_export_domain
+}
+
+is_import_or_export_common() {
+  is_import_common || is_export_common
 }
 
 is_command_all_empty() {
@@ -654,9 +667,13 @@ remove_path_values() {
 
   IFS=$value_delimiter
 
-  set -- "$(get_clean_string_from_space "$1")"
+  set -- $(get_clean_string_from_space "$1")
 
   while [ $# -gt 0 ]; do
+    if [ "$1" = "" ] || [ "$1" = " " ]; then
+      shift
+      continue
+    fi
     if is_file "$1"; then
       remove_file "$1"
     elif is_dir "$1"; then
@@ -832,7 +849,7 @@ post_config_typescript() {
 }
 
 install_golang_package() {
-  if [ "$#" -lt 2 ]; then
+  if [ "$#" -ne 2 ]; then
     echo "[install_golang_package] syntax error... usage: $0 <base_dir> <package>"
     exit 1
   fi
@@ -847,7 +864,7 @@ install_golang_package() {
 }
 
 install_python_package() {
-  if [ "$#" -lt 2 ]; then
+  if [ "$#" -ne 2 ]; then
     echo "[install_python_package] syntax error... usage: $0 <base_dir> <package>"
     exit 1
   fi
@@ -866,7 +883,7 @@ install_python_package() {
 }
 
 install_typescript_package() {
-  if [ "$#" -lt 2 ]; then
+  if [ "$#" -ne 2 ]; then
     echo "[install_typescript_package] syntax error... usage: $0 <base_dir> <package>"
     exit 1
   fi
@@ -881,7 +898,7 @@ install_typescript_package() {
 }
 
 install_dependency_external() {
-  if [ "$#" -lt 2 ]; then
+  if [ "$#" -ne 2 ]; then
     echo "[install_dependency_external] syntax error... usage: $0 <base_dir> <dependency>"
     exit 1
   fi
@@ -891,14 +908,20 @@ install_dependency_external() {
     return 1
   fi
 
+  _8_base_dir="$1"
+
   IFS=$value_delimiter
 
-  set -- "$2"
+  set -- $2
 
   while [ $# -gt 0 ]; do
-    install_golang_package "$1" $2
-    install_python_package "$1" $2
-    install_typescript_package "$1" $2
+    if [ "$1" = "" ] || [ "$1" = " " ]; then
+      shift
+      continue
+    fi
+    install_golang_package "$_8_base_dir" "$1"
+    install_python_package "$_8_base_dir" "$1"
+    install_typescript_package "$_8_base_dir" "$1"
     shift
   done
 
@@ -952,35 +975,6 @@ copy_contents() {
   echo "[copy_contents] '$1'... copied to '$2' (existing contents will not be overwritten)"
 }
 
-copy_dependency_file() {
-  if [ "$#" -ne 3 ]; then
-    echo "[copy_dependency_file] syntax error... usage: $0 <dependency> <source_dir> <dest_dir>"
-    exit 1
-  fi
-
-  if [ "$1" = "" ] || [ "$1" = " " ]; then
-    echo "[copy_dependency_file] status... nothing to process"
-    return 1
-  fi
-
-  _5_source_dir="$2"
-  _5_dest_dir="$3"
-  _5_source_go_module=$(get_go_module_from_path "$_5_source_dir")
-  _5_dest_go_module=$(get_go_module_from_path "$_5_dest_dir")
-
-  IFS=$value_delimiter
-
-  set -- "$(get_clean_string_from_space "$1")"
-
-  while [ $# -gt 0 ]; do
-    copy_file "$_5_source_dir/$1" "$_5_dest_dir/$1"
-    replace_go_module_in_file "$_5_dest_dir/$1" "$_5_source_go_module" "$_5_dest_go_module"
-    shift
-  done
-
-  IFS=$old_ifs
-}
-
 copy_dependency_feature() {
   if [ "$#" -ne 3 ]; then
     echo "[copy_dependency_feature] syntax error... usage: $0 <dependency> <source_dir> <dest_dir>"
@@ -1003,40 +997,110 @@ copy_dependency_feature() {
 
   IFS=$value_delimiter
 
-  set -- "$(get_clean_string_from_space "$1")"
+  set -- $(get_clean_string_from_space "$1")
 
   while [ $# -gt 0 ]; do
-    if ! is_dir "$_6_source_dir/$1"; then
-      echo "[copy_dependency_feature] '$1'... feature does not exist in '$_6_source_dir'"
+    if [ "$1" = "" ] || [ "$1" = " " ]; then
+      shift
+      continue
+    fi
+    if ! is_dir "$_6_source_dir/$feature_dir/$1"; then
+      echo "[copy_dependency_feature] '$1'... feature does not exist in '$_6_source_dir/$feature_dir'"
       shift
       continue
     fi
 
-    if ! is_file "$_6_source_dir/$1/dependency.json"; then
-      echo "[copy_dependency_feature] '$_6_source_dir/$1'... warning, no 'dependency.json' file found (this may result in missing package errors later)"
+    if ! is_file "$_6_source_dir/$feature_dir/$1/dependency.json"; then
+      echo "[copy_dependency_feature] '$_6_source_dir/$feature_dir/$1'... warning, no 'dependency.json' file found (this may result in missing package errors later)"
     else
-      _6_dependency=$(get_raw_json_from_file "$_6_source_dir/$1/dependency.json")
+      _6_dependency=$(get_raw_json_from_file "$_6_source_dir/$feature_dir/$1/dependency.json")
       _6_dependency=$(get_clean_string_from_space "$_6_dependency")
       _6_dependency_feature="$_6_dependency_feature,$(get_json_value_by_key "$_6_dependency" "$dependency_feature_key")"
       _6_dependency_domain="$_6_dependency_domain,$(get_json_value_by_key "$_6_dependency" "$dependency_domain_key")"
       _6_dependency_common="$_6_dependency_common,$(get_json_value_by_key "$_6_dependency" "$dependency_common_key")"
 
-      _6_dependency=$(get_raw_json_from_file_for_external "$_6_source_dir/$1/dependency.json")
+      _6_dependency=$(get_raw_json_from_file_for_external "$_6_source_dir/$feature_dir/$1/dependency.json")
       _6_dependency_external="$_6_dependency_external,$(get_json_value_by_key_for_external "$_6_dependency" "$dependency_external_key")"
     fi
 
-    copy_contents "$_6_source_dir/$1" "$_6_dest_dir/$1"
-    replace_go_module_in_directory_files "$_6_dest_dir/$1" "$_6_source_go_module" "$_6_dest_go_module"
-    remove_unwanted_contents_from_directory "$_6_dest_dir/$1"
+    copy_contents "$_6_source_dir/$feature_dir/$1" "$_6_dest_dir/$feature_dir/$1"
+    replace_go_module_in_directory_files "$_6_dest_dir/$feature_dir/$1" "$_6_source_go_module" "$_6_dest_go_module"
+    remove_unwanted_contents_from_directory "$_6_dest_dir/$feature_dir/$1"
     shift
   done
 
   IFS=$old_ifs
 
-  copy_dependency_file "$_6_dependency_domain" "$_6_source_dir" "$_6_dest_dir"
-  copy_dependency_file "$_6_dependency_common" "$_6_source_dir" "$_6_dest_dir"
-  install_dependency_external "$_6_dest_dir" $_6_dependency_external
+  copy_dependency_domain "$_6_dependency_domain" "$_6_source_dir" "$_6_dest_dir"
+  copy_dependency_common "$_6_dependency_common" "$_6_source_dir" "$_6_dest_dir"
+  install_dependency_external "$_6_dest_dir" "$_6_dependency_external"
   copy_dependency_feature "$_6_dependency_feature" "$_6_source_dir" "$_6_dest_dir"
+}
+
+copy_dependency_domain() {
+  if [ "$#" -ne 3 ]; then
+    echo "[copy_dependency_domain] syntax error... usage: $0 <dependency> <source_dir> <dest_dir>"
+    exit 1
+  fi
+
+  if [ "$1" = "" ] || [ "$1" = " " ]; then
+    echo "[copy_dependency_domain] status... nothing to process"
+    return 1
+  fi
+
+  _5_source_dir="$2"
+  _5_dest_dir="$3"
+  _5_source_go_module=$(get_go_module_from_path "$_5_source_dir")
+  _5_dest_go_module=$(get_go_module_from_path "$_5_dest_dir")
+
+  IFS=$value_delimiter
+
+  set -- $(get_clean_string_from_space "$1")
+
+  while [ $# -gt 0 ]; do
+    if [ "$1" = "" ] || [ "$1" = " " ]; then
+      shift
+      continue
+    fi
+    copy_file "$_5_source_dir/$domain_dir/$1" "$_5_dest_dir/$domain_dir/$1"
+    replace_go_module_in_file "$_5_dest_dir/$domain_dir/$1" "$_5_source_go_module" "$_5_dest_go_module"
+    shift
+  done
+
+  IFS=$old_ifs
+}
+
+copy_dependency_common() {
+  if [ "$#" -ne 3 ]; then
+    echo "[copy_dependency_common] syntax error... usage: $0 <dependency> <source_dir> <dest_dir>"
+    exit 1
+  fi
+
+  if [ "$1" = "" ] || [ "$1" = " " ]; then
+    echo "[copy_dependency_common] status... nothing to process"
+    return 1
+  fi
+
+  _5_source_dir="$2"
+  _5_dest_dir="$3"
+  _5_source_go_module=$(get_go_module_from_path "$_5_source_dir")
+  _5_dest_go_module=$(get_go_module_from_path "$_5_dest_dir")
+
+  IFS=$value_delimiter
+
+  set -- $(get_clean_string_from_space "$1")
+
+  while [ $# -gt 0 ]; do
+    if [ "$1" = "" ] || [ "$1" = " " ]; then
+      shift
+      continue
+    fi
+    copy_file "$_5_source_dir/$common_dir/$1" "$_5_dest_dir/$common_dir/$1"
+    replace_go_module_in_file "$_5_dest_dir/$common_dir/$1" "$_5_source_go_module" "$_5_dest_go_module"
+    shift
+  done
+
+  IFS=$old_ifs
 }
 
 trap bersih_bersih EXIT
