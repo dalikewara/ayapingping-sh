@@ -750,7 +750,7 @@ replace_go_module_in_file() {
   fi
 
   if is_golang; then
-    replace_string_in_file "$1" "$2" "$3"
+    replace_string_in_file "$1" "\"$2" "\"$3"
   fi
 }
 
