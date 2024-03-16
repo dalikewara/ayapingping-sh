@@ -561,7 +561,7 @@ print_invalid_command_warning() {
 
 validate_import_or_export_command() {
   if is_import_or_export_command_valid; then
-    retun 0
+    return 0
   fi
 
   print_invalid_command_warning
