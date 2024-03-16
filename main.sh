@@ -105,9 +105,26 @@ create_new_project() {
 
   remove_unwanted_contents_from_directory "$_0_project_name"
 
+  create_env "$_0_project_name"
+
   post_config "$_0_project_name" "$_0_go_module" "$_0_dont_use_venv"
 
   trap_is_ok=true
+}
+
+create_env() {
+  if [ "$#" -ne 1 ]; then
+    echo "[create_env] syntax error... usage: $0 <base_dir>"
+    exit 1
+  fi
+
+  if is_file "$1/.env.example" && ! is_dir "$1/.env.example"; then
+    copy_file "$1/.env.example" "$1/.env"
+  elif ! is_file "$1/.env" && ! is_dir "$1/.env"; then
+    touch "$1/.env"
+  fi
+
+  echo "[create_env] '.env'... created to '$1' (existing file will not be overwritten)"
 }
 
 import_or_export_something() {
