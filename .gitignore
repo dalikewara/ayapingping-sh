@@ -87,3 +87,4 @@ venv
 venv/*
 *pycache*
 .pypirc
+*_latest.sh

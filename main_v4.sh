@@ -7,11 +7,15 @@ value=$4
 source_prefix=$5
 source=$6
 
-sh_version="1.0.0"
+sh_version="4.0.0"
 old_ifs=$IFS
 base_structure_dir="_base_structure"
 runtime_dir="$(dirname "$(readlink -f "$0")")"
 runtime_base_structure_dir="$runtime_dir/$base_structure_dir"
+runtime_file=$(basename "$0")
+latest_raw_url="https://raw.githubusercontent.com/dalikewara/ayapingping-sh/master/main_v4.sh"
+latest_file="main_v4_latest.sh"
+latest_output_filepath="$runtime_dir/$latest_file"
 current_dir=$(pwd)
 name="AyaPingPing"
 language_golang="Golang"
@@ -56,7 +60,31 @@ trap_path=""
 
 # last function variable prefix: _8
 
-bismillah_aman() {
+main() {
+  if is_latest; then
+    trap cleanup EXIT
+
+    generator
+
+    exit 0
+  fi
+
+  wget -qO "$latest_output_filepath" "$latest_raw_url" || curl -sSL "$latest_raw_url" > "$latest_output_filepath" || true
+
+  if is_file "$latest_output_filepath"; then
+    ./$latest_output_filepath
+
+    exit 0
+  else
+    trap cleanup EXIT
+
+    generator
+
+    exit 0
+  fi
+}
+
+generator() {
   print_version
 
   if is_version; then
@@ -149,7 +177,7 @@ import_or_export_something() {
   trap_is_ok=true
 }
 
-bersih_bersih() {
+cleanup() {
   IFS=$old_ifs
 
   if is_version; then
@@ -1117,6 +1145,4 @@ copy_dependency_common() {
   IFS=$old_ifs
 }
 
-trap bersih_bersih EXIT
-
-bismillah_aman
+main
