@@ -27,13 +27,13 @@ There's no need to get started here. To see how the generator works, see the des
 
 ## The Generator Synchronization
 
-Every **ayapingping** variant ships with the default `main_*.sh` that is copied manually from this repo for the first time when the variant was created to be included in the installation directory. How does it work?
+How does it work?
 
 Let's assume you have installed one of the **ayapingping** variants, for example: **ayapingping-go**. When you call any **ayapingping-go** command: `ayapingping-go`, `ayapingping-go version`, `ayapingping-go importFeature bla bla bla`, and so on... It will:
 
 1. Check if you can get the latest `main_*.sh` version from this repo
-2. If you can't (either you're offline or something else), **ayapingping-go** will use the current `main_*.sh` file from its installation directory
-3. If you can, **ayapingping-go** will update the current `main_*.sh` file in its installation directory with the latest one and will use it for the next process
+2. If you can't (either you're offline or something else), **ayapingping-go** will use the current `main.sh` file from its installation directory
+3. If you can, **ayapingping-go** will update the current `main.sh` file in its installation directory with the latest one and will use it for the next process
 4. So, this will make sure that **ayapingping-go** always uses the latest version of the generator without breaking or changing anything
 5. The same behavior applies to the other variants too
 6. This means any fixes, changes, or adjustments made to the generator will also automatically be applied to all the **ayapingping** variants
