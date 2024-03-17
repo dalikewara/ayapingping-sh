@@ -74,7 +74,7 @@ main() {
   if is_file "$latest_output_filepath"; then
     chmod +x $latest_output_filepath
 
-    .$latest_output_filepath
+    $latest_output_filepath
 
     exit 0
   else
