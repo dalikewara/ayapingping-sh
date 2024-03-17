@@ -7,15 +7,11 @@ value=$4
 source_prefix=$5
 source=$6
 
-sh_version="4.4.6"
+sh_version="4.4.7"
 old_ifs=$IFS
 base_structure_dir="_base_structure"
 runtime_dir="$(dirname "$(readlink -f "$0")")"
 runtime_base_structure_dir="$runtime_dir/$base_structure_dir"
-runtime_file=$(basename "$0")
-latest_raw_url="https://raw.githubusercontent.com/dalikewara/ayapingping-sh/master/main_v4.sh"
-latest_file="main_v4_latest.sh"
-latest_output_filepath="$runtime_dir/$latest_file"
 current_dir=$(pwd)
 name="AyaPingPing"
 language_golang="Golang"
@@ -178,10 +174,6 @@ cleanup() {
     echo "[cleanup] cleaning up... done"
     echo "aborted"
   fi
-}
-
-is_latest() {
-  [ "$runtime_file" = "$latest_file" ]
 }
 
 is_golang() {
