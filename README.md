@@ -1,5 +1,6 @@
 # ayapingping-sh
 
+![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/dalikewara/ayapingping-sh)
 ![GitHub license](https://img.shields.io/github/license/dalikewara/ayapingping-sh)
 
 **ayapingping-sh** is the main shell script (`/bin/sh`) for **ayapingping**'s generator, which follows **POSIX** standards to ensure 
@@ -9,7 +10,7 @@ script, adapting the next **ayapingping** variant to a new or different programm
 
 ## Variants
 
-Currently, ayapingping has the following variants:
+Currently, **ayapingping** has the following variants:
 
 - Golang: [ayapingping-go](https://github.com/dalikewara/ayapingping-go)
 - Python: [ayapingping-py](https://github.com/dalikewara/ayapingping-py)
