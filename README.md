@@ -15,6 +15,11 @@ Currently, ayapingping has the following variants:
 - Python: [ayapingping-py](https://github.com/dalikewara/ayapingping-py)
 - TypeScript: [ayapingping-ts](https://github.com/dalikewara/ayapingping-ts)
 
+## Requirements
+
+- Operating systems supporting `/bin/sh` with **POSIX** standards. **Linux** and **macOS** should have no issues here as they support it by default
+- For **Windows** users, consider using WSL instead
+
 ## Getting Started
 
 There's no need to get started here. To see how the generator works, see the description below, or just take a look at the `main_*.sh` file.
