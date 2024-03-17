@@ -60,36 +60,6 @@ trap_path=""
 
 # last function variable prefix: _9
 
-main() {
-  if is_latest; then
-    trap cleanup EXIT
-
-    generator
-
-    exit 0
-  fi
-
-  wget -q --no-cache -O "$latest_output_filepath" "$latest_raw_url" || true
-
-  if [ "$(head -c 9 "$latest_output_filepath")" != "#!/bin/sh" ]; then
-    curl -s -o "$latest_output_filepath" "$latest_raw_url" || true
-  fi
-
-  if is_file "$latest_output_filepath" && [ "$(head -c 9 "$latest_output_filepath")" = "#!/bin/sh" ]; then
-    chmod +x $latest_output_filepath
-
-    $latest_output_filepath "$version" "$language" "$command" "$value" "$source_prefix" "$source"
-
-    exit 0
-  else
-    trap cleanup EXIT
-
-    generator
-
-    exit 0
-  fi
-}
-
 generator() {
   print_version
 
@@ -1155,4 +1125,6 @@ copy_dependency_common() {
   IFS=$old_ifs
 }
 
-main
+trap cleanup EXIT
+
+generator
