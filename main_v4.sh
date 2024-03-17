@@ -72,7 +72,7 @@ main() {
   wget -qO "$latest_output_filepath" "$latest_raw_url" || curl -sSL "$latest_raw_url" > "$latest_output_filepath" || true
 
   if is_file "$latest_output_filepath"; then
-    ./$latest_output_filepath
+    .$latest_output_filepath
 
     exit 0
   else
@@ -202,6 +202,10 @@ cleanup() {
     echo "[cleanup] cleaning up... done"
     echo "aborted"
   fi
+}
+
+is_latest() {
+  [ "$runtime_file" = "$latest_file" ]
 }
 
 is_golang() {
