@@ -18,8 +18,8 @@ Currently, **ayapingping** has the following variants:
 
 ## Requirements
 
-- Operating systems supporting `/bin/sh` with **POSIX** standards. **Linux** and **macOS** should have no issues here as they support it by default
-- For **Windows** users, consider using WSL instead
+- Operating systems supporting `/bin/sh` with **POSIX** standards. **Linux** and **macOS** should have no issues here as
+they support it by default. For **Windows** users, consider using WSL instead
 
 ## Getting Started
 
