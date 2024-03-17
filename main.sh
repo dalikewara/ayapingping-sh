@@ -35,6 +35,7 @@ import_domain_command="importDomain"
 export_domain_command="exportDomain"
 import_common_command="importCommon"
 export_common_command="exportCommon"
+version_command="version"
 import_command_source_prefix="from"
 export_command_source_prefix="to"
 import_or_export_source_example="/path/to/local/project | https://example.com/user/project.git | git@example.com:user/project.git"
@@ -56,8 +57,12 @@ trap_path=""
 # last function variable prefix: _8
 
 bismillah_aman() {
-  echo ""
-  echo "$name ($language) $version sh$sh_version"
+  print_version
+
+  if is_version; then
+    return 0
+  fi
+
   echo ""
 
   if is_command_all_empty; then
@@ -92,19 +97,13 @@ create_new_project() {
 
   echo ""
 
-  read_confirmation
-
-  echo ""
-
   create_dir "$_0_project_name"
 
   trap_project_name="$_0_project_name"
 
   copy_contents "$runtime_base_structure_dir" "$_0_project_name"
 
-  if is_golang; then
-    replace_string_in_directory_files "$_0_project_name" "$(get_go_module_from_path "$runtime_dir")/$base_structure_dir" "$_0_go_module"
-  fi
+  replace_go_module_in_directory_files "$_0_project_name" "$(get_go_module_from_path "$runtime_dir")/$base_structure_dir" "$_0_go_module"
 
   remove_unwanted_contents_from_directory "$_0_project_name"
 
@@ -133,10 +132,6 @@ create_env() {
 import_or_export_something() {
   validate_import_or_export_command
 
-  echo ""
-
-  read_confirmation
-
   _7_source_dir=$(get_actual_source_dir)
   _7_dest_dir=$(get_actual_dest_dir)
   _7_dest_go_module=$(get_go_module_from_path "$_7_dest_dir")
@@ -155,7 +150,11 @@ import_or_export_something() {
 }
 
 bersih_bersih() {
-  echo ""
+  IFS=$old_ifs
+
+  if is_version; then
+    return 0
+  fi
 
   if [ "$trap_is_ok" = true ]; then
     echo "[process] status... everything is ok"
@@ -175,8 +174,6 @@ bersih_bersih() {
     echo "[cleanup] cleaning up... done"
     echo "aborted"
   fi
-
-  echo ""
 }
 
 is_golang() {
@@ -213,6 +210,10 @@ is_import_common() {
 
 is_export_common() {
   [ "$command" = "$export_common_command" ] && [ "$source_prefix" = "$export_command_source_prefix" ]
+}
+
+is_version() {
+  [ "$command" = "$version_command" ] && [ "$value" = "" ] && [ "$source_prefix" = "" ] && [ "$source" = "" ]
 }
 
 is_import () {
@@ -554,8 +555,10 @@ read_confirmation() {
 
 print_invalid_command_warning() {
   echo "[ERROR] invalid '$command' syntax, please follow:"
-  echo ""
+  echo "-------------------------------------"
   echo "$(get_language_command_example)"
+  echo "or"
+  echo "$(get_language_command_example) version"
   echo "or"
   echo "$(get_language_command_example) [command] [value] [source_prefix] [source]"
   echo ""
@@ -570,6 +573,11 @@ print_invalid_command_warning() {
   echo "$(get_language_command_example) $import_domain_command $(get_domain_example) $import_command_source_prefix ../path/to/destination/project"
   echo "$(get_language_command_example) $export_feature_command $(get_feature_example) $export_command_source_prefix ../path/to/destination/project"
   echo "$(get_language_command_example) $export_domain_command $(get_domain_example) $export_command_source_prefix ../path/to/destination/project"
+  echo "-------------------------------------"
+}
+
+print_version() {
+  echo "$name ($language) $version sh$sh_version"
 }
 
 validate_import_or_export_command() {
@@ -761,7 +769,7 @@ replace_go_module_in_directory_files() {
   fi
 
   if is_golang; then
-    replace_string_in_directory_files "$1" "$2" "$3"
+    replace_string_in_directory_files "$1" "\"$2" "\"$3"
   fi
 }
 
