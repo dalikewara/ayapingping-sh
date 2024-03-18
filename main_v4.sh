@@ -7,7 +7,7 @@ value=$4
 source_prefix=$5
 source=$6
 
-sh_version="4.4.7"
+sh_version="4.4.8"
 old_ifs=$IFS
 base_structure_dir="_base_structure"
 runtime_dir="$(dirname "$(readlink -f "$0")")"
