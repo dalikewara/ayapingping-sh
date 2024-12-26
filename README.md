@@ -1,5 +1,7 @@
 # ayapingping-sh
 
+> **ayapingping-sh** has been rebranded to **[uwais](https://github.com/dalikewara/uwais)**. This repository will stay up forever and won’t be deleted, so you can still use it if needed. However, there won’t be any more updates here since all future updates will be worked on in the new **[uwais](https://github.com/dalikewara/uwais)** repository.
+
 ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/dalikewara/ayapingping-sh)
 ![GitHub license](https://img.shields.io/github/license/dalikewara/ayapingping-sh)
 
